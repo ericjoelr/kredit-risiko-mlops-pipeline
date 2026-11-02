@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[oc]
+*.egg-info
+.venv
+.pytest_cache/
+.ruff_cache/
+
+# Lokale Konfiguration
+.env
+
+# Lokale Notizen
+/docs/*.md
+
+# macOS
+.DS_Store
+
+# Daten: nur die Beispieldatei wird versioniert
+*.csv
+!data/raw/loan_data.csv
+data/predictions/*
+!data/predictions/.gitkeep
+
+# MLflow (Datenbank und Artefakte)
+mlruns/
+mlflow.db
+
+# Diagramm-Arbeitsdateien
+.archify/

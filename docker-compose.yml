@@ -1,0 +1,50 @@
+x-app: &app
+  build: .
+  image: credit-risk-mlops
+
+services:
+  # Tracking-Server und Model Registry; Datenbank und Artefakte bleiben in ./mlruns erhalten
+  mlflow:
+    <<: *app
+    command: >
+      mlflow server --host 0.0.0.0 --port 5050
+      --backend-store-uri sqlite:////mlruns/mlflow.db
+      --artifacts-destination /mlruns/artifacts
+      --allowed-hosts mlflow,mlflow:5050,localhost,localhost:5050
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./mlruns:/mlruns
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5050/health')"]
+      interval: 5s
+      retries: 12
+
+  # Lädt beim Start das Champion-Modell aus der Registry
+  api:
+    <<: *app
+    command: uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5050
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data/predictions:/app/data/predictions  # Vorhersage-Log für die Drift-Erkennung
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      retries: 12
+
+  frontend:
+    <<: *app
+    command: streamlit run frontend/app.py --server.address 0.0.0.0 --server.port 8501
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy

@@ -1,0 +1,15 @@
+{
+  "credit_policy": 1,
+  "purpose": "debt_consolidation",
+  "int_rate": 0.12,
+  "installment": 300.0,
+  "log_annual_inc": 11.0,
+  "dti": 15.0,
+  "fico": 710,
+  "days_with_cr_line": 4500.0,
+  "revol_bal": 12000.0,
+  "revol_util": 45.0,
+  "inq_last_6mths": 1,
+  "delinq_2yrs": 0,
+  "pub_rec": 0
+}
